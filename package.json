@@ -1,0 +1,13 @@
+{
+  "name": "excel-to-database-fetch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "hasibur53362",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "fast-csv": "^5.0.2",
+    "fs": "^0.0.1-security",
+    "mysql2": "^3.12.0"
+  }
+}
