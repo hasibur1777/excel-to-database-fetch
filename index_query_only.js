@@ -16,7 +16,7 @@ const outputPrefix = 'files/tv/TV-Production';
 const maxRowsPerFile = 150000; // Max rows per CSV file before splitting
 const batchSize = 5000; // Fetch records at a time
 
-let fileCount = 1;
+let fileCount = 16;
 let totalRowsWritten = 0;
 let writeStream = createNewCSVFile();
 
@@ -50,13 +50,16 @@ async function fetchAndWriteData() {
                         wbcsm_barcode_serial_track2 as m
                     left join wbcsm_product_code as p on
                         m.itemcode = p.itemcode
-                        and m.isActive = 1
+                        and p.isActive = 1
                     left join wbcsm_model wm on
                         wm.id = p.modelID
+                        and wm.isActive = 1
                     where
                         m.assembly_line_id in ('51', '19', '10', '50', '7', '73', '72', '71', '64')
-                        and m.actproddate BETWEEN '2020-01-11' AND '2025-02-25'
-                        and wm.isActive = 1
+                        AND m.isActive = 1
+                        AND m.id > 45831985
+                    order by
+                        m.id
                      LIMIT ?, ?`;
 
       const [rows] = await pool.query(query, [offset, batchSize]);

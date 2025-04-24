@@ -39,7 +39,7 @@ async function processBarcodes() {
 
   csvStream
     .on('data', (row) => {
-      const barcodes = row.barcode.split(','); // Split barcodes if separated by commas
+      const barcodes = row.barcode.split(/[,|-]/); // Split barcodes if separated by commas or hyphens
       barcodes.forEach((barcode) => batch.push(barcode.trim())); // Trim and push each barcode individually
 
       // batch.push(row.barcode);
@@ -78,8 +78,17 @@ async function fetchAndWrite(batch) {
 
     const [rows] = await pool.query(query, batch);
 
-    for (const { barcode, entry_date } of rows) {
-      writeStream.write(`${barcode},${entry_date}\n`);
+    const foundBarcodes = new Set(rows.map((row) => row.barcode));
+
+    for (const barcode of batch) {
+      if (foundBarcodes.has(barcode)) {
+        const { entry_date } = rows.find(
+          (row) => row.barcode === barcode
+        );
+        writeStream.write(`${barcode},${entry_date}\n`);
+      } else {
+        writeStream.write(`${barcode},not found\n`);
+      }
       totalRowsWritten++;
 
       // If 65,000 rows are reached, create a new file
